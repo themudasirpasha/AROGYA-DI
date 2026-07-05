@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+google-adk
+google-cloud-geminidataanalytics
+google-cloud-aiplatform
+google-cloud-pubsub
+python-multipart
+google-genai
+google-cloud-speech
+python-dotenv

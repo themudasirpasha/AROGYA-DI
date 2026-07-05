@@ -1,0 +1,36 @@
+verified_queries:
+  - question: "Which patients have the highest readmission risk this month?"
+    sql: |
+      SELECT patient_id, admit_date, discharge_date, ward_type, 
+      readmitted_7d, hba1c, creatinine, haemoglobin 
+      FROM arogya_data.hospital_readmissions 
+      WHERE readmitted_7d = 1 
+      ORDER BY hba1c DESC LIMIT 10
+
+  - question: "Is there any unusual Zika activity in any state?"
+    sql: |
+      SELECT State, `Total Cases` FROM arogya_data.zika_outbreaks 
+      ORDER BY `Total Cases` DESC LIMIT 10
+
+  - question: "Which cities have the worst air quality?"
+    sql: |
+      SELECT City, AVG(AQI) as avg_aqi FROM arogya_data.air_quality 
+      GROUP BY City ORDER BY avg_aqi DESC LIMIT 10
+
+  - question: "Is air quality linked to respiratory admissions?"
+    sql: |
+      SELECT City, Date, AQI, PM2_5 FROM arogya_data.air_quality 
+      WHERE AQI > 200 ORDER BY Date DESC LIMIT 10
+
+  - question: "How many patients are currently in ICU?"
+    sql: |
+      SELECT ward_type, COUNT(*) as patient_count 
+      FROM arogya_data.hospital_readmissions 
+      GROUP BY ward_type ORDER BY patient_count DESC
+
+  - question: "Forecast air quality for the next 7 days in Ahmedabad"
+    sql: |
+      SELECT *
+      FROM ML.FORECAST(MODEL arogya_data.aqi_forecast_model,
+        STRUCT(7 AS horizon, 0.9 AS confidence_level))
+      WHERE City = 'Ahmedabad'

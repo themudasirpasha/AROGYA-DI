@@ -1,0 +1,24 @@
+alert_rules:
+  - name: disease_spike
+    description: Triggers when a disease case count exceeds seasonal baseline
+    condition: current_cases >= 3 * baseline_average
+    severity: high
+    example: "Dengue cases in Ward 12 are 3x above seasonal baseline"
+
+  - name: air_quality_critical
+    description: Triggers when AQI crosses hazardous threshold
+    condition: AQI > 300
+    severity: high
+    example: "Ahmedabad AQI crossed 400 - hazardous level"
+
+  - name: readmission_risk_cluster
+    description: Triggers when multiple patients show high readmission risk in same ward
+    condition: count(readmitted_7d = 1) >= 3 within same ward_type
+    severity: medium
+    example: "3+ high-risk readmission patients flagged in ICU ward this week"
+
+  - name: er_load_forecast_spike
+    description: Triggers when forecasted ER load exceeds capacity threshold
+    condition: forecasted_load > 1.3 * current_capacity
+    severity: high
+    example: "Clinic A ER load projected to exceed capacity by 30% next week"
