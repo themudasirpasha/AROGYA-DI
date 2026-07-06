@@ -126,24 +126,19 @@ arogya-di-project/
 
 
 ### `CHATBOT
-The main endpoint. Handles data queries, anomaly checks, forecasts, what-if scenarios, and alert checks — all through natural language.
 
-```json
-{ "message": "Which cities have the worst air quality?" }
-```
-
-Response:
+<img width="1179" height="510" alt="Screenshot 2026-07-06 094224" src="https://github.com/user-attachments/assets/6364e638-b7f5-4b28-a523-e1ab25be5c15" />
 
 
+### 
 
-### `
 <img width="1115" height="628" alt="Screenshot 2026-07-06 093106" src="https://github.com/user-attachments/assets/8cbd2c41-8c94-400b-be4a-b40558145955" />
 
 
-### `POST /api/transcribe`
-Upload an audio clip (`multipart/form-data`, field name `file`) for transcription.
+### 
 
----
+<img width="1179" height="461" alt="Screenshot 2026-07-06 094301" src="https://github.com/user-attachments/assets/ff162f38-5fa3-4de7-8fd2-ed147ca6c975" />
+
 
 ## Running Locally
 
