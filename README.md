@@ -1,0 +1,215 @@
+<img width="915" height="267" alt="Screenshot 2026-07-06 091747" src="https://github.com/user-attachments/assets/78756bd0-4cfb-4990-813b-7682d80d731f" />
+
+
+# AROGYA-DI
+
+**AI-Powered District Health Command Center**
+
+*"From scattered records to defensible action."*
+
+Built for the Google Cloud Hackathon 2026 — *AI for Better Living and Smarter Communities*
+
+---
+
+## Overview
+
+AROGYA-DI is a decision intelligence platform that helps district health officers turn scattered, structured, and unstructured health data into evidence-backed decisions — in seconds instead of hours. A single conversational interface lets an officer ask a plain-language question and get back an answer, an anomaly flag, a forecast, or a recommended action, all grounded in real data.
+
+**Live backend:** `https://arogya-di-244972601130.us-central1.run.app`
+
+---
+
+## Problem Statement
+
+Modern communities generate large volumes of structured and unstructured data — but turning that information into actionable insight remains a major challenge. AROGYA-DI addresses this for the healthcare and community wellness domain: district-level epidemic intelligence and hospital load balancing.
+
+---
+
+## Features
+
+| Feature | Description |
+|---|---|
+| **Talk-to-your-data** | Ask any question in plain language (English, Hindi, or Kannada) and get an answer, table, or chart |
+| **Anomaly detection** | Flags disease/outbreak spikes against seasonal baselines |
+| **7-day forecasting** | BigQuery ML (ARIMA_PLUS) forecasts for AQI and disease trends |
+| **Multimodal image analysis** | Upload a field photo; Gemini Vision flags likely mosquito/dengue breeding sites with a confidence score and recommended action |
+| **Voice transcription** | Converts citizen helpline calls / field voice notes into text (English, Hindi, Kannada) |
+| **Live proactive alerting** | Pub/Sub-based alerts, checked and surfaced through the same conversation |
+| **What-if intervention simulator** | Projects the impact of earlier screening, extra hospital beds, or increased vector control |
+| **Live air quality lookup** | Real-time AQI via Google's Air Quality API, alongside historical trends |
+| **Geo/map data** | City-level air quality with coordinates, ready for map rendering |
+| **Responsible AI** | Automated evaluation for groundedness, tool-routing accuracy, and jailbreak resistance |
+
+---
+
+## Architecture
+
+```
+User (any language)
+        │
+        ▼
+ ┌─────────────────────────┐
+ │   ADK Orchestrator      │   <- single agent, decides which tool to call
+ │  (Gemini 2.5 Flash)     │
+ └─────────────────────────┘
+        │
+        ├──► query_health_data       → BigQuery Conversational Analytics (verified queries)
+        ├──► check_live_air_quality  → Google Air Quality API
+        ├──► simulate_intervention   → custom what-if model
+        ├──► publish_health_alert /
+        │    check_pending_alerts    → Pub/Sub
+        └──► (via /api/upload)       → Gemini Vision (image) / Speech-to-Text (audio)
+```
+
+All of this sits behind a single FastAPI service, deployed on Cloud Run.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Data warehouse | BigQuery |
+| Conversational agent | BigQuery Conversational Analytics (Agent Catalog), verified queries |
+| Orchestration | Agent Development Kit (ADK) |
+| Reasoning | Gemini 2.5 Flash |
+| Forecasting | BigQuery ML (ARIMA_PLUS) |
+| Multimodal ingestion | Vertex AI Gemini Vision, Cloud Speech-to-Text |
+| Live data | Google Air Quality API |
+| Alerting | Pub/Sub |
+| Backend | FastAPI, Python 3.12 |
+| Deployment | Cloud Run (Docker) |
+
+---
+
+## Datasets
+
+| Dataset | Source | Use |
+|---|---|---|
+| Zika outbreaks (state-wise) | data.gov.in | Anomaly / surveillance |
+| Hospital readmissions | Kaggle (India Hospital Readmissions) | Risk scoring |
+| Air quality (city-wise) | Kaggle (Air Quality Data in India) | Trend + forecasting |
+| City coordinates | Manually curated | Geo/map rendering |
+| Hospital infrastructure (rural/urban, statewise, defence, AYUSH) | data.gov.in / Kaggle | Hospital load-balancing insight |
+
+---
+
+## Repository Structure
+
+```
+arogya-di-project/
+├── backend/
+│   ├── data/                  # Dataset CSVs and BigQuery load script
+│   ├── bigquery/              # Verified queries and system instructions
+│   ├── multimodal/            # Vision, speech-to-text, live air quality tools
+│   ├── whatif_simulator/      # Intervention impact model
+│   ├── alerts/                # Pub/Sub publisher and subscriber
+│   ├── api/
+│   │   ├── app.py             # FastAPI entrypoint
+│   │   └── adk_agent.py       # ADK orchestrator + tool definitions
+│   ├── eval/                  # Agent evaluation (groundedness, safety, jailbreak tests)
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+└── frontend/
+    ├── src/app/                # Angular application source
+    ├── public/                 # Static assets
+    ├── Dockerfile
+    ├── nginx.conf
+    └── angular.json
+```
+
+---
+
+## API Endpoints
+
+<img width="536" height="459" alt="Screenshot 2026-07-06 092157" src="https://github.com/user-attachments/assets/773d2938-1bbe-495e-b71f-57e26a61b9e2" />
+
+
+### `POST /api/chat`
+The main endpoint. Handles data queries, anomaly checks, forecasts, what-if scenarios, and alert checks — all through natural language.
+
+```json
+{ "message": "Which cities have the worst air quality?" }
+```
+
+Response:
+
+
+### `POST /api/upload`
+Upload a field photo (`multipart/form-data`, field name `file`) for breeding-site detection.
+
+### `POST /api/transcribe`
+Upload an audio clip (`multipart/form-data`, field name `file`) for transcription.
+
+---
+
+## Running Locally
+
+```bash
+git clone <this-repo-url>
+cd arogya-di-project/backend
+
+pip install -r requirements.txt
+
+export GOOGLE_GENAI_USE_VERTEXAI=TRUE
+export GOOGLE_CLOUD_PROJECT=<your-project-id>
+export GOOGLE_CLOUD_LOCATION=us-central1
+
+python3 -m uvicorn api.app:app --host 0.0.0.0 --port 8080
+```
+
+Visit `http://localhost:8080/docs` for the interactive API explorer.
+
+For the frontend:
+```bash
+cd arogya-di-project/frontend
+npm install
+ng serve
+```
+
+---
+
+## Deploying to Cloud Run
+
+Backend:
+```bash
+cd arogya-di-project/backend
+gcloud run deploy arogya-di-backend \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=<your-project-id>,GOOGLE_CLOUD_LOCATION=us-central1
+```
+
+Frontend:
+```bash
+cd arogya-di-project/frontend
+gcloud run deploy arogya-di-frontend \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated
+```
+
+---
+
+## Responsible AI
+
+An automated evaluation suite (`eval/agent_eval.py`) tests:
+- **Groundedness** — answers are derived from real data, not fabricated
+- **Tool-routing accuracy** — the correct tool is called for the right question
+- **Missing/invalid input handling** — the agent flags rather than guesses
+- **Jailbreak resistance** — no destructive action is possible via prompt injection, since tools use parameterized, read-only queries
+
+All four tests currently pass.
+
+---
+
+## Team
+
+**Team Name:** When I'm With You
+
+- Mudasir Pasha
+- Voni Purujit
+
+Built for Google Cloud Hackathon 2026 — *AI for Better Living and Smarter Communities*.
