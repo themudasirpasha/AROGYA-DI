@@ -41,6 +41,9 @@ Modern communities generate large volumes of structured and unstructured data �
 
 ---
 
+<img width="1175" height="637" alt="Screenshot 2026-07-06 093409" src="https://github.com/user-attachments/assets/4c8be241-a695-4a13-8541-476808fa7abf" />
+
+
 ## Architecture
 
 ```
@@ -93,6 +96,8 @@ All of this sits behind a single FastAPI service, deployed on Cloud Run.
 
 ---
 
+<img width="1179" height="510" alt="Screenshot 2026-07-06 094224" src="https://github.com/user-attachments/assets/6364e638-b7f5-4b28-a523-e1ab25be5c15" />
+
 ## Repository Structure
 
 ```
@@ -118,26 +123,10 @@ arogya-di-project/
     └── angular.json
 ```
 
----
-
-## SNAPSHOTS
-
-<img width="536" height="459" alt="Screenshot 2026-07-06 092157" src="https://github.com/user-attachments/assets/773d2938-1bbe-495e-b71f-57e26a61b9e2" />
-
-
-### `CHATBOT
-
-<img width="1179" height="510" alt="Screenshot 2026-07-06 094224" src="https://github.com/user-attachments/assets/6364e638-b7f5-4b28-a523-e1ab25be5c15" />
-
-
+--
 ### 
 
 <img width="1115" height="628" alt="Screenshot 2026-07-06 093106" src="https://github.com/user-attachments/assets/8cbd2c41-8c94-400b-be4a-b40558145955" />
-
-
-### 
-
-<img width="1179" height="461" alt="Screenshot 2026-07-06 094301" src="https://github.com/user-attachments/assets/ff162f38-5fa3-4de7-8fd2-ed147ca6c975" />
 
 
 ## Running Locally
@@ -154,6 +143,7 @@ export GOOGLE_CLOUD_LOCATION=us-central1
 
 python3 -m uvicorn api.app:app --host 0.0.0.0 --port 8080
 ```
+<img width="1179" height="461" alt="Screenshot 2026-07-06 094301" src="https://github.com/user-attachments/assets/ff162f38-5fa3-4de7-8fd2-ed147ca6c975" />
 
 Visit `http://localhost:8080/docs` for the interactive API explorer.
 
@@ -177,6 +167,7 @@ gcloud run deploy arogya-di-backend \
   --allow-unauthenticated \
   --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=<your-project-id>,GOOGLE_CLOUD_LOCATION=us-central1
 ```
+<img width="536" height="459" alt="Screenshot 2026-07-06 092157" src="https://github.com/user-attachments/assets/773d2938-1bbe-495e-b71f-57e26a61b9e2" />
 
 Frontend:
 ```bash
