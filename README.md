@@ -167,7 +167,8 @@ gcloud run deploy arogya-di-backend \
   --allow-unauthenticated \
   --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=<your-project-id>,GOOGLE_CLOUD_LOCATION=us-central1
 ```
-<img width="536" height="459" alt="Screenshot 2026-07-06 092157" src="https://github.com/user-attachments/assets/773d2938-1bbe-495e-b71f-57e26a61b9e2" />
+<img width="536" height="459" alt="Screenshot 2026-07-06 092157" src="https://github.com/user-attachments/assets/773d2938-1bbe-495e-b71f-57e26a61b9e2" />    <img width="522" height="388" alt="Screenshot 2026-07-06 092232" src="https://github.com/user-attachments/assets/ddd7d06f-f222-4759-b267-c6fa7310edcc" />
+
 
 Frontend:
 ```bash
