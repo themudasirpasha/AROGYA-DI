@@ -4,6 +4,8 @@
 # AROGYA-DI
 
 **AI-Powered District Health Command Center**
+<img width="1134" height="198" alt="Screenshot 2026-07-06 092812" src="https://github.com/user-attachments/assets/4f8755ce-5012-41cd-b9dd-0559fc4a1839" />
+
 
 *"From scattered records to defensible action."*
 
@@ -15,7 +17,7 @@ Built for the Google Cloud Hackathon 2026 — *AI for Better Living and Smarter 
 
 AROGYA-DI is a decision intelligence platform that helps district health officers turn scattered, structured, and unstructured health data into evidence-backed decisions — in seconds instead of hours. A single conversational interface lets an officer ask a plain-language question and get back an answer, an anomaly flag, a forecast, or a recommended action, all grounded in real data.
 
-**Live backend:** `https://arogya-di-244972601130.us-central1.run.app`
+**Live - https://arogya-di-244972601130.us-central1.run.app
 
 ---
 
@@ -121,12 +123,12 @@ arogya-di-project/
 
 ---
 
-## API Endpoints
+## SNAPSHOTS
 
 <img width="536" height="459" alt="Screenshot 2026-07-06 092157" src="https://github.com/user-attachments/assets/773d2938-1bbe-495e-b71f-57e26a61b9e2" />
 
 
-### `POST /api/chat`
+### `CHATBOT
 The main endpoint. Handles data queries, anomaly checks, forecasts, what-if scenarios, and alert checks — all through natural language.
 
 ```json
@@ -136,8 +138,10 @@ The main endpoint. Handles data queries, anomaly checks, forecasts, what-if scen
 Response:
 
 
-### `POST /api/upload`
-Upload a field photo (`multipart/form-data`, field name `file`) for breeding-site detection.
+
+### `
+<img width="1115" height="628" alt="Screenshot 2026-07-06 093106" src="https://github.com/user-attachments/assets/8cbd2c41-8c94-400b-be4a-b40558145955" />
+
 
 ### `POST /api/transcribe`
 Upload an audio clip (`multipart/form-data`, field name `file`) for transcription.
