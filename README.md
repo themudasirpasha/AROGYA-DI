@@ -1,6 +1,3 @@
-<img width="915" height="267" alt="Screenshot 2026-07-06 091747" src="https://github.com/user-attachments/assets/78756bd0-4cfb-4990-813b-7682d80d731f" />
-
-
 # AROGYA-DI
 
 **AI-Powered District Health Command Center**
