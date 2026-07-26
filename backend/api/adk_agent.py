@@ -13,6 +13,7 @@ import json
 PROJECT_ID = "ameer-491011"
 LOCATION = "global"
 DATA_AGENT_ID = "agent_dad9f98c-a15e-44ad-8aff-512f606048b8"
+DOCTOR_AGENT_ID = "agent_38803629-2744-4a14-97de-fa0e0513a3ba"
 
 
 def query_health_data(question: str) -> str:
@@ -29,16 +30,31 @@ def query_health_data(question: str) -> str:
         messages=messages,
         data_agent_context=data_agent_context,
     )
+def query_health_data(question: str) -> dict:
+    """Answers natural language questions about health data using BigQuery."""
+    data_chat_client = geminidataanalytics.DataChatServiceClient()
+    messages = [geminidataanalytics.Message(
+        user_message=geminidataanalytics.UserMessage(text=question)
+    )]
+    data_agent_context = geminidataanalytics.DataAgentContext(
+        data_agent=f"projects/{PROJECT_ID}/locations/{LOCATION}/dataAgents/{DATA_AGENT_ID}"
+    )
+    request = geminidataanalytics.ChatRequest(
+        parent=f"projects/{PROJECT_ID}/locations/{LOCATION}",
+        messages=messages,
+        data_agent_context=data_agent_context,
+    )
     texts = []
-    for response in data_chat_client.chat(request=request):
+    chart_spec = None
+    for response in data_chat_client.chat(request=request, timeout=280):
         msg = response.system_message
         if msg.text and msg.text.parts:
             texts.append(" ".join(msg.text.parts))
-        if msg.data and msg.data.result:
-            texts.append(f"[DATA TABLE]: {str(msg.data.result)}")
         if msg.chart and msg.chart.result:
-            texts.append(f"[CHART SPEC]: {str(msg.chart.result)}")
-    return " ".join(texts) if texts else "No response generated."
+            chart_spec = str(msg.chart.result)
+
+    final_answer = " ".join(texts) if texts else "Query completed."
+    return {"answer": final_answer, "chart": chart_spec}
 
 def analyze_field_image(image_bytes: bytes, mime_type: str) -> str:
     """Analyzes a field-uploaded photo to detect potential mosquito/dengue breeding sites."""
@@ -86,6 +102,50 @@ def check_live_air_quality(city_name: str, latitude: float, longitude: float) ->
     return (f"Live air quality in {city_name}: Universal AQI = {aqi_info.get('aqi')}, "
             f"Category: {aqi_info.get('category')}, "
             f"Dominant pollutant: {aqi_info.get('dominantPollutant')}")
+
+
+def query_doctor_data(question: str) -> str:
+    """Answers natural language questions about doctor availability, 
+    specialties, working hours, and healthcare facility coverage 
+    across Karnataka districts using BigQuery."""
+    data_chat_client = geminidataanalytics.DataChatServiceClient()
+    messages = [geminidataanalytics.Message(
+        user_message=geminidataanalytics.UserMessage(text=question)
+    )]
+    data_agent_context = geminidataanalytics.DataAgentContext(
+        data_agent=f"projects/{PROJECT_ID}/locations/us/dataAgents/{DOCTOR_AGENT_ID}"
+    )
+    request = geminidataanalytics.ChatRequest(
+        parent=f"projects/{PROJECT_ID}/locations/us",
+        messages=messages,
+        data_agent_context=data_agent_context,
+    )
+    texts = []
+    for response in data_chat_client.chat(request=request):
+        msg = response.system_message
+        if msg.text and msg.text.parts:
+            texts.append(" ".join(msg.text.parts))
+        if msg.data and msg.data.result:
+            texts.append(f"[DATA TABLE]: {str(msg.data.result)}")
+        if msg.chart and msg.chart.result:
+            texts.append(f"[CHART SPEC]: {str(msg.chart.result)}")
+    return " ".join(texts) if texts else "No response generated."
+
+
+doctor_agent = Agent(
+    name="arogya_di_doctor_orchestrator",
+    model="gemini-2.5-flash",
+    description="AROGYA-DI doctor availability and facility coverage assistant",
+    instruction="""You are AROGYA-DI's Doctor Availability Assistant. 
+    Use query_doctor_data for ALL questions about doctors, their 
+    specialties, working hours, government or private facilities, 
+    and district/taluk-wise coverage. Always mention working timings 
+    when relevant. Always respond in the same language the user's 
+    question was asked in (English, Hindi, or Kannada). Always ground 
+    answers in tool results - never guess. If data is insufficient, 
+    say so explicitly.""",
+    tools=[query_doctor_data],
+)
 
 
 root_agent = Agent(
