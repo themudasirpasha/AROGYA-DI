@@ -14,7 +14,7 @@ Built for the Google Cloud Hackathon 2026 — *AI for Better Living and Smarter 
 
 AROGYA-DI is a decision intelligence platform that helps district health officers turn scattered, structured, and unstructured health data into evidence-backed decisions — in seconds instead of hours. A single conversational interface lets an officer ask a plain-language question and get back an answer, an anomaly flag, a forecast, or a recommended action, all grounded in real data.
 
-**Live - https://arogya-di-244972601130.us-central1.run.app
+**Live - https://arogya-di-v2-244972601130.us-central1.run.app
 
 ---
 
