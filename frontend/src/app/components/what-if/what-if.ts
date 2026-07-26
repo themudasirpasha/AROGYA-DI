@@ -14,6 +14,11 @@ import { ArogyaService } from '../../services/arogya.service';
       <header class="command-header">
         <div class="command-header-left">
           <span class="back-arrow" routerLink="/home">←</span>
+          <div class="header-logo-icon" style="margin-left: 0.5rem;">
+            <svg class="header-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </div>
           <div class="command-header-title">
             <h2>AROGYA-DI</h2>
             <span>What-If Simulator</span>

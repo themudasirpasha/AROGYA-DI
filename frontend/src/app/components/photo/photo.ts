@@ -13,6 +13,11 @@ import { ArogyaService, UploadResponse } from '../../services/arogya.service';
       <header class="command-header">
         <div class="command-header-left">
           <span class="back-arrow" routerLink="/home">←</span>
+          <div class="header-logo-icon" style="margin-left: 0.5rem;">
+            <svg class="header-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </div>
           <div class="command-header-title">
             <h2>AROGYA-DI</h2>
             <span>Breeding Site Detector</span>
@@ -128,6 +133,13 @@ import { ArogyaService, UploadResponse } from '../../services/arogya.service';
                   </div>
                 }
               </div>
+            </div>
+          } @else if (errorMsg()) {
+            <div class="card empty-card error-state">
+              <span class="info-icon">⚠️</span>
+              <h3>Analysis Failed</h3>
+              <p class="error-text">{{ errorMsg() }}</p>
+              <button class="btn btn-outline btn-retry" (click)="analyzePhoto()" style="margin-top: 1rem;">Retry Analysis</button>
             </div>
           } @else if (isLoading()) {
             <div class="card empty-card loading-state">
@@ -432,6 +444,7 @@ export class PhotoComponent {
   isLoading = signal(false);
   isDragging = signal(false);
   result = signal<UploadResponse | null>(null);
+  errorMsg = signal<string | null>(null);
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -461,6 +474,7 @@ export class PhotoComponent {
   handleFile(file: File) {
     this.selectedFile.set(file);
     this.result.set(null);
+    this.errorMsg.set(null);
     const reader = new FileReader();
     reader.onload = () => {
       this.imagePreview.set(reader.result as string);
@@ -472,6 +486,7 @@ export class PhotoComponent {
     this.selectedFile.set(null);
     this.imagePreview.set(null);
     this.result.set(null);
+    this.errorMsg.set(null);
   }
 
   analyzePhoto() {
@@ -480,6 +495,7 @@ export class PhotoComponent {
 
     this.isLoading.set(true);
     this.result.set(null);
+    this.errorMsg.set(null);
 
     this.service.uploadPhoto(file).subscribe({
       next: (res) => {
@@ -488,13 +504,7 @@ export class PhotoComponent {
       },
       error: (err) => {
         console.error('Photo upload error:', err);
-        // Fallback demo/mock if CORS or file endpoint isn't fully operational in local testing environment
-        this.result.set({
-          breeding_site_detected: true,
-          confidence: 88,
-          reason: 'Visual scan shows a substantial volume of stagnant surface water matching puddle geometry in dirt. The coloration suggests presence of organic decomposition, suitable for Anopheles or Aedes vector breeding.',
-          recommended_action: 'Coordinate vector control, Spray anti-larval agents, Alert local health worker'
-        });
+        this.errorMsg.set('Unable to complete visual scan. Please verify server connectivity and try again.');
         this.isLoading.set(false);
       }
     });

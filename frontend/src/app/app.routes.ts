@@ -5,11 +5,13 @@ import { PhotoComponent } from './components/photo/photo';
 import { VoiceComponent } from './components/voice/voice';
 import { MapComponent } from './components/map/map';
 import { WhatIfSimulatorComponent } from './components/what-if/what-if';
+import { DoctorChatComponent } from './components/doctor-chat/doctor-chat';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'chat', component: ChatComponent },
+  { path: 'doctor-chat', component: DoctorChatComponent },
   { path: 'photo', component: PhotoComponent },
   { path: 'voice', component: VoiceComponent },
   { path: 'map', component: MapComponent },

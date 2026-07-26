@@ -10,6 +10,7 @@ interface Message {
   text: string;
   timestamp: Date;
   tableData?: TableData;
+  vegaChart?: any;
 }
 
 interface TableData {
@@ -29,6 +30,11 @@ interface TableData {
       <header class="command-header">
         <div class="command-header-left">
           <span class="back-arrow" routerLink="/home">←</span>
+          <div class="header-logo-icon" style="margin-left: 0.5rem;">
+            <svg class="header-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </div>
           <div class="command-header-title">
             <h2>AROGYA-DI</h2>
             <span>Chat Command Center</span>
@@ -62,7 +68,7 @@ interface TableData {
             <div class="bubble-wrapper">
               <div class="bubble">
                 <p class="message-text" [innerHTML]="formatMessageText(msg.text)"></p>
-                
+
                 <!-- Render Table & Chart if parsed -->
                 @if (msg.tableData) {
                   <div class="table-visualization-container">
@@ -76,6 +82,9 @@ interface TableData {
                         </button>
                       }
                     </div>
+
+
+
 
                     <div class="tab-content">
                       <!-- Table View -->
@@ -126,34 +135,34 @@ interface TableData {
                               @let y = 230 - barHeight;
 
                               <!-- Bar -->
-                              <rect 
-                                [attr.x]="x" 
-                                [attr.y]="y" 
-                                [attr.width]="barWidth" 
-                                [attr.height]="barHeight" 
-                                fill="var(--primary)" 
+                              <rect
+                                [attr.x]="x"
+                                [attr.y]="y"
+                                [attr.width]="barWidth"
+                                [attr.height]="barHeight"
+                                fill="var(--primary)"
                                 rx="4"
                                 class="chart-bar"
                               />
 
                               <!-- Bar Label (Value) -->
-                              <text 
-                                [attr.x]="x + barWidth / 2" 
-                                [attr.y]="y - 6" 
-                                text-anchor="middle" 
-                                font-size="10" 
-                                font-weight="700" 
+                              <text
+                                [attr.x]="x + barWidth / 2"
+                                [attr.y]="y - 6"
+                                text-anchor="middle"
+                                font-size="10"
+                                font-weight="700"
                                 fill="var(--primary-hover)"
                               >
                                 {{ item.value }}
                               </text>
 
                               <!-- Label (X axis) -->
-                              <text 
-                                [attr.x]="x + barWidth / 2" 
-                                y="255" 
-                                text-anchor="middle" 
-                                font-size="9" 
+                              <text
+                                [attr.x]="x + barWidth / 2"
+                                y="255"
+                                text-anchor="middle"
+                                font-size="9"
                                 font-weight="600"
                                 fill="var(--text-muted)"
                                 [attr.transform]="'rotate(-30 ' + (x + barWidth / 2) + ' 255)'"
@@ -165,6 +174,11 @@ interface TableData {
                         </div>
                       }
                     </div>
+                  </div>
+                }
+                  @if (msg.vegaChart) {
+                  <div class="table-visualization-container">
+                    <div [id]="'vega-chart-' + $index" style="width:100%; min-height:300px;"></div>
                   </div>
                 }
               </div>
@@ -189,11 +203,11 @@ interface TableData {
 
       <div class="chat-input-area">
         <form (ngSubmit)="sendMessage()" class="input-form">
-          <input 
-            type="text" 
-            [(ngModel)]="userInput" 
-            name="message" 
-            placeholder="Ask a question (e.g. 'Show me air quality coordinates' or 'Simulate 10 beds')..." 
+          <input
+            type="text"
+            [(ngModel)]="userInput"
+            name="message"
+            placeholder="Ask a question (e.g. 'Show me air quality coordinates' or 'Simulate 10 beds')..."
             [disabled]="isLoading()"
             autocomplete="off"
             class="chat-input-field"
@@ -345,22 +359,38 @@ interface TableData {
     }
 
     .msg.assistant .bubble ul {
-      margin-left: 1.25rem;
-      margin-top: 0.5rem;
+      list-style-type: none;
+      padding-left: 0;
+      margin-top: 0.75rem;
       margin-bottom: 0.75rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.6rem;
     }
 
     .msg.assistant .bubble li {
+      position: relative;
+      padding-left: 1.5rem;
       font-size: 0.95rem;
       line-height: 1.6;
       color: var(--text-main);
     }
 
+    .msg.assistant .bubble li::before {
+      content: "✦";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .msg.assistant .bubble strong {
+      color: var(--primary-hover);
+      font-weight: 700;
+    }
+
     .msg.assistant .bubble p {
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
       line-height: 1.6;
     }
 
@@ -544,7 +574,7 @@ export class ChatComponent {
   isLoading = signal(false);
   activeTab: { [key: number]: 'table' | 'chart' } = {};
 
-  sendMessage() {
+ sendMessage() {
     if (!this.userInput.trim() || this.isLoading()) return;
 
     const userMessageText = this.userInput;
@@ -561,10 +591,12 @@ export class ChatComponent {
     this.isLoading.set(true);
 
     this.service.sendChatMessage(userMessageText).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         const tableData = this.parseMarkdownTable(res.answer);
         const cleanAnswer = tableData ? this.removeTableFromText(res.answer) : res.answer;
+        const vegaChart = res.chart?.vega_config || res.chart || undefined;
 
+        const newIndex = this.messages().length;
         this.messages.update((prev) => [
           ...prev,
           {
@@ -572,9 +604,14 @@ export class ChatComponent {
             text: cleanAnswer,
             timestamp: new Date(),
             tableData,
+            vegaChart,
           },
         ]);
         this.isLoading.set(false);
+
+        if (vegaChart) {
+          setTimeout(() => this.renderVegaChart(newIndex, vegaChart), 50);
+        }
       },
       error: (err) => {
         console.error('Chat error:', err);
@@ -591,12 +628,19 @@ export class ChatComponent {
     });
   }
 
+  renderVegaChart(index: number, spec: any) {
+    const el = document.getElementById('vega-chart-' + index);
+    if (el && (window as any).vegaEmbed) {
+      (window as any).vegaEmbed(el, spec, { actions: false });
+    }
+  }
+
   formatMessageText(text: string): string {
     const lines = text.split('\n');
     let inList = false;
     const htmlLines = lines.map(line => {
       let trimmed = line.trim();
-      
+
       // 1. Headers
       if (trimmed.startsWith('###')) {
         let headerText = trimmed.substring(3).trim();
@@ -629,7 +673,7 @@ export class ChatComponent {
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/\*(.*?)\*/g, '<em>$1</em>')
           .replace(/`(.*?)`/g, '<code class="inline-code">$1</code>');
-        
+
         if (!inList) {
           inList = true;
           return '<ul><li>' + content + '</li>';
@@ -642,7 +686,7 @@ export class ChatComponent {
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/`(.*?)`/g, '<code class="inline-code">$1</code>');
-        
+
       if (inList && trimmed === '') {
         inList = false;
         return '</ul>';
@@ -664,7 +708,7 @@ export class ChatComponent {
   parseMarkdownTable(text: string): TableData | undefined {
     const lines = text.split('\n');
     const tableLines = lines.filter(l => l.trim().startsWith('|') && l.trim().endsWith('|'));
-    
+
     if (tableLines.length < 3) return undefined; // Needs header, divider, and at least one data row
 
     // Parse headers

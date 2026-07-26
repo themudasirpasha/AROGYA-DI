@@ -13,6 +13,11 @@ import { ArogyaService } from '../../services/arogya.service';
       <header class="command-header">
         <div class="command-header-left">
           <span class="back-arrow" routerLink="/home">←</span>
+          <div class="header-logo-icon" style="margin-left: 0.5rem;">
+            <svg class="header-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </div>
           <div class="command-header-title">
             <h2>AROGYA-DI</h2>
             <span>Citizen Audio Transcriber</span>
@@ -108,6 +113,13 @@ import { ArogyaService } from '../../services/arogya.service';
           <div class="transcript-body">
             @if (transcript()) {
               <p class="transcript-text">{{ transcript() }}</p>
+            } @else if (errorMsg()) {
+              <div class="loading-state error-state" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; height:250px; gap:0.5rem; color:#991b1b;">
+                <span style="font-size:2rem;">⚠️</span>
+                <h3 style="color:#991b1b; margin:0;">Transcription Failed</h3>
+                <p style="font-size:0.85rem; color:#ef4444; max-width:320px;">{{ errorMsg() }}</p>
+                <button class="btn btn-outline" (click)="transcribeAudio()" style="margin-top:1rem; border-color:#ef4444; color:#ef4444; background:transparent;">Retry Transcription</button>
+              </div>
             } @else if (isLoading()) {
               <div class="loading-state">
                 <div class="dots-loader"><span></span><span></span><span></span></div>
@@ -326,6 +338,7 @@ export class VoiceComponent {
   isLoading = signal(false);
   isDragging = signal(false);
   transcript = signal<string | null>(null);
+  errorMsg = signal<string | null>(null);
   copySuccess = signal(false);
 
   onFileSelected(event: any) {
@@ -333,6 +346,7 @@ export class VoiceComponent {
     if (file) {
       this.selectedFile.set(file);
       this.transcript.set(null);
+      this.errorMsg.set(null);
     }
   }
 
@@ -352,12 +366,14 @@ export class VoiceComponent {
     if (file) {
       this.selectedFile.set(file);
       this.transcript.set(null);
+      this.errorMsg.set(null);
     }
   }
 
   clearFile() {
     this.selectedFile.set(null);
     this.transcript.set(null);
+    this.errorMsg.set(null);
   }
 
   transcribeAudio() {
@@ -366,6 +382,7 @@ export class VoiceComponent {
 
     this.isLoading.set(true);
     this.transcript.set(null);
+    this.errorMsg.set(null);
 
     this.service.uploadVoice(file).subscribe({
       next: (res) => {
@@ -374,10 +391,7 @@ export class VoiceComponent {
       },
       error: (err) => {
         console.error('Audio transcription error:', err);
-        // Fallback mockup
-        this.transcript.set(
-          `Alert logged at Ward 4, Outer Ring Road. Citizen reports massive waterlogging and drainage leakage behind public park. Residents are concerned about stagnant water breeding vectors as multiple dengue symptoms were reported yesterday. Demanding immediate vector spray.`
-        );
+        this.errorMsg.set('Unable to complete audio transcription. Please verify server connectivity and try again.');
         this.isLoading.set(false);
       }
     });

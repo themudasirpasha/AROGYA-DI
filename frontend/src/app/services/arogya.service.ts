@@ -30,6 +30,10 @@ export class ArogyaService {
     return this.http.post<ChatResponse>(`${this.baseUrl}/chat`, { message });
   }
 
+  sendDoctorChatMessage(message: string): Observable<ChatResponse> {
+    return this.http.post<ChatResponse>(`${this.baseUrl}/doctor-chat`, { message });
+  }
+
   uploadPhoto(file: File): Observable<UploadResponse> {
     const formData = new FormData();
     formData.append('file', file);
